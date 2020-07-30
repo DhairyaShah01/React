@@ -1,11 +1,108 @@
-import React from 'react';
-import { Card, CardImg, CardText, CardBody, CardTitle, Breadcrumb, BreadcrumbItem } from 'reactstrap';
+import React, { Component } from 'react';
+import { Card, CardImg, CardText, CardBody, CardTitle, Breadcrumb, BreadcrumbItem, Row, Col, Button, Modal, ModalHeader, ModalBody, Label } from 'reactstrap';
 import { Link } from 'react-router-dom';
+import { LocalForm, Errors, Control} from 'react-redux-form';
+
+const minLength = (len) => (val) => (val) && (val.length >= len);
+const maxLength = (len) => (val) => !(val) || (val.length <= len);
+
+class CommentForm extends Component {
+	
+	constructor(props) {
+		super(props);
+		this.state = {
+			isModalOpen: false
+		};
+
+	this.toggleModal = this.toggleModal.bind(this);
+	this.handleSubmit = this.handleSubmit.bind(this);
+	}
+
+	toggleModal() {
+		this.setState({
+			isModalOpen: !this.state.isModalOpen
+		});
+	}
+
+	handleSubmit(values) {
+		this.toggleModal();
+		alert("Current State is: " + JSON.stringify(values));
+	}
+
+	render() {
+		return (
+		<div>
+			<Button type="submit" color="primary" onClick={this.toggleModal}>
+				<span className="fa fa-pencil">Submit Comment</span>
+			</Button>
+			<Modal isOpen={this.state.isModalOpen} toggle={this.toggleModal}>
+				<ModalHeader toggle={this.toggleModal}>Submit Comment</ModalHeader>
+				<ModalBody>
+					<LocalForm onSubmit={this.handleSubmit}>
+						<Row className="form-group">
+							<Label htmlFor="form-group" md={12}>
+								Rating
+							</Label>
+							<Col md={{size: 12}}>
+								<Control.select model=".rating" name="rating" id="rating"
+									className="form-control">
+									<option>1</option>
+									<option>2</option>
+									<option>3</option>
+									<option>4</option>
+									<option>5</option>
+								</Control.select>
+							</Col>
+						</Row>
+						<Row className="form-group">
+                            <Label htmlFor="author" md={12}>Your Name</Label>
+                            <Col md={12}>
+                                <Control.text model=".author" id="author" name="author"
+                                    placeholder="Name"
+                                    className="form-control"
+                                    validators={{
+                                        minLength: minLength(3), maxLength: maxLength(15)
+                                    }}
+                                     />
+                                <Errors
+                                    className="text-danger"
+                                    model=".author"
+                                    show="touched"
+                                    messages={{
+                                        minLength: 'Must be greater than 2 characters',
+                                        maxLength: 'Must be 15 characters or less'
+                                    }}
+                                  />
+                            </Col>
+            			</Row>
+						<Row className="form-group">
+                            <Label htmlFor="comment" md={12}>Comment</Label>
+                            <Col md={12}>
+                                <Control.textarea model=".comment" id="comment" name="comment"
+                                    rows="6"
+                                    className="form-control" />
+                            </Col>
+            			</Row>
+						<Row className="form-group">
+                            <Col md={{size:12}}>
+                                <Button type="submit" color="primary">
+                                    Submit    
+                                </Button>    
+                            </Col>    
+                        </Row>
+					</LocalForm>
+				</ModalBody>
+			</Modal>
+		</div>
+		)
+	}
+}
 	
 	function Comments({comments}) {
 		if (comments == null) {
 			return (<div></div>)
 		}
+
 		const cmnts = comments.map((comments) => {
 			return (
 				<li key={comments.id}>
@@ -26,6 +123,7 @@ import { Link } from 'react-router-dom';
 				<h4> Comments </h4>
 				<ul className="list-unstyled">
 					{cmnts}
+					<CommentForm />
 				</ul>
 			</div>
 		)
